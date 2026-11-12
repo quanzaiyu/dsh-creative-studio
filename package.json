@@ -1,9 +1,8 @@
 {
-  "name": "@local/creative-studio",
+  "name": "@quanzaiyu/dsh-creative-studio",
   "version": "1.0.0",
-  "private": true,
   "type": "module",
-  "description": "创作展示台 — 多供应商生图/生视频/音乐/配音可视化工作台",
+  "description": "创作展示台 — DSH 多供应商 AI 创作工作台：生图 / 生视频 / 音乐 / 配音，支持参考图/视频/音频与自定义供应商模型 (Multi-provider AI creative studio plugin for DeepSeek Harness)",
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
@@ -30,5 +29,25 @@
         "@deepseek-ai/dsh-client-ui-sidebar"
       ]
     }
-  }
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "ai",
+    "image-generation",
+    "video-generation",
+    "music-generation",
+    "tts",
+    "creative-studio",
+    "moss",
+    "minimax",
+    "dashscope",
+    "volcengine",
+    "agnes"
+  ],
+  "license": "MIT",
+  "author": "quanzaiyu",
+  "repository": "https://cnb.cool/quanzaiyu/quanzaiyu/creative-studio",
+  "homepage": "https://cnb.cool/quanzaiyu/quanzaiyu/creative-studio",
+  "bugs": "https://cnb.cool/quanzaiyu/quanzaiyu/creative-studio/issues"
 }

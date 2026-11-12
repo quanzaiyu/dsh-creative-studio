@@ -1,4 +1,9 @@
-# 创作展示台：host 半区插件行。页面与 API 由本包 index.js 通过 webServer 注册。
+# 创作展示台 bundle patch（npm 发布版）。
+#
+# 通过官方 CLI 安装时：
+#   dsh plugin --profile <name> add @quanzaiyu/dsh-creative-studio
+# CLI 依据本包的 dsh.bundle.patch 声明把本包追加进 dsh.profile.bundles，
+# 启动时合并本补丁（insert 一行插件行）——无需手改 profile 文件。
 - insert:
     - id: creative-studio
-      name: '@local/creative-studio'
+      name: '@quanzaiyu/dsh-creative-studio'

@@ -24,12 +24,24 @@
 
 ## 安装（DSH）
 
+一条命令安装并挂载（推荐）：
+
+```bash
+dsh plugin --profile web add @quanzaiyu/dsh-creative-studio
+```
+
+重启 DSH 宿主后，左侧菜单出现「创作展示台」。
+
+<details>
+<summary>手动 link 方式（本地开发）</summary>
+
 1. 将本目录放到任意位置（例如 DSH 工作区内）。
-2. 在 DSH 的 profile（通常 \`C:\\<user>\\.dsh\\profiles\\web\`）中：
-   - \`package.json\` 的 dependencies 加入 \`"@local/creative-studio": "link:<本目录绝对路径>"\`；
-   - 加入 \`dsh.profile.bundles\` 数组：\`"@local/creative-studio"\`。
-3. \`pnpm install\` 后重启 DSH 宿主。
-4. 打开 DSH 网页版，左侧菜单进入「创作展示台」。
+2. 在 DSH 的 profile（通常 `C:\<user>\.dsh\profiles\web`）中：
+   - `package.json` 的 dependencies 加入 `"@local/creative-studio": "link:<本目录绝对路径>"`；
+   - 加入 `dsh.profile.bundles` 数组：`"@local/creative-studio"`；
+   - 本地 `cordis.patch.yml` 需自行插入 \`{id: creative-studio, name: '@local/creative-studio'}\`。
+3. `pnpm install` 后重启 DSH 宿主。
+</details>
 
 ## API Key 配置
 
