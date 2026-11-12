@@ -10,7 +10,7 @@
  */
 
 window.__ModuleLoader__.load({
-  id: '@local/creative-studio',
+  id: '@quanzaiyu/dsh-creative-studio',
   factory(require) {
     const React = require('react');
 
