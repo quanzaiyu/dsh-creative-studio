@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>创作展示台 · Creative Studio</title>
+<style>
+  :root {
+    --bg: #0d1117; --bg2: #151b28; --bg3: #1c2436; --line: #2a3450;
+    --text: #e8ecf5; --muted: #8b96b3; --dim: #5d6786;
+    --accent: #6d8bff; --accent2: #8b5cf6; --ok: #34d399; --warn: #fbbf24; --err: #f87171;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); }
+  a { color: var(--accent); }
+  header { display: flex; align-items: center; gap: 14px; padding: 14px 22px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #131a2a, #0d1117); position: sticky; top: 0; z-index: 20; }
+  header .logo { width: 30px; height: 30px; }
+  header h1 { font-size: 17px; margin: 0; font-weight: 650; letter-spacing: .5px; }
+  header .sub { color: var(--muted); font-size: 12px; }
+  header .spacer { flex: 1; }
+  button { font-family: inherit; }
+  .btn { border: 1px solid var(--line); background: var(--bg3); color: var(--text); border-radius: 9px; padding: 7px 14px; font-size: 13px; cursor: pointer; transition: .15s; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; color: #fff; font-weight: 600; }
+  .btn.primary:disabled { opacity: .45; cursor: not-allowed; }
+  .btn.small { padding: 4px 10px; font-size: 12px; border-radius: 7px; }
+  .btn.danger { color: var(--err); }
+  main { display: grid; grid-template-columns: 420px 1fr; gap: 18px; padding: 18px 22px; max-width: 1600px; margin: 0 auto; }
+  @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+  .panel { background: var(--bg2); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .panel h2 { font-size: 14px; margin: 0 0 12px; color: var(--muted); font-weight: 600; letter-spacing: .5px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tabs button { flex: 1; padding: 9px 0; border-radius: 9px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; }
+  .tabs button.active { background: linear-gradient(135deg, rgba(109,139,255,.18), rgba(139,92,246,.18)); border-color: var(--accent); color: var(--text); font-weight: 600; }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .field select, .field input[type=text], .field textarea { width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px; font-family: inherit; }
+  .field textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
+  .field select:focus, .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
+  .refs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ref-chip { position: relative; width: 74px; height: 74px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .ref-chip img, .ref-chip video { width: 100%; height: 100%; object-fit: cover; }
+  .ref-chip .name { position: absolute; bottom: 0; left: 0; right: 0; font-size: 9px; padding: 2px 4px; background: rgba(0,0,0,.55); color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ref-chip .rm { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; border: none; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; font-size: 11px; line-height: 1; }
+  .ref-add { width: 74px; height: 74px; border-radius: 9px; border: 1px dashed var(--line); background: transparent; color: var(--muted); cursor: pointer; font-size: 22px; }
+  .ref-add:hover { border-color: var(--accent); color: var(--accent); }
+  .ref-note { font-size: 11px; color: var(--warn); margin-top: 6px; line-height: 1.5; }
+  .status { margin-top: 10px; font-size: 12px; line-height: 1.6; }
+  .status.ok { color: var(--ok); } .status.err { color: var(--err); } .status.warn { color: var(--warn); } .status.info { color: var(--muted); }
+  .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+  .card { background: var(--bg2); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+  .card .media { background: #000; min-height: 130px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .card .media img, .card .media video { width: 100%; max-height: 260px; object-fit: contain; display: block; cursor: pointer; }
+  .card .media audio { width: 100%; margin: 18px 10px; }
+  .card .media .kind-badge { position: absolute; top: 8px; left: 8px; font-size: 10px; background: rgba(0,0,0,.55); color: #fff; padding: 2px 7px; border-radius: 5px; letter-spacing: 1px; }
+  .card .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .card .prompt { font-size: 12px; line-height: 1.55; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card .meta { font-size: 11px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; }
+  .card .meta .tag { background: var(--bg3); padding: 1px 7px; border-radius: 5px; }
+  .card .actions { display: flex; gap: 6px; margin-top: auto; padding-top: 6px; }
+  .empty { color: var(--muted); font-size: 13px; text-align: center; padding: 40px 0; grid-column: 1/-1; }
+  /* 设置弹窗 */
+  .overlay { position: fixed; inset: 0; background: rgba(5,8,15,.72); display: none; align-items: flex-start; justify-content: center; z-index: 50; padding: 60px 16px; overflow-y: auto; }
+  .overlay.show { display: flex; }
+  .modal { background: var(--bg2); border: 1px solid var(--line); border-radius: 14px; width: 640px; max-width: 100%; padding: 20px 22px; }
+  .modal h3 { margin: 0 0 4px; font-size: 16px; }
+  .modal .hint { color: var(--muted); font-size: 12px; margin-bottom: 16px; }
+  .prov-row { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; background: var(--bg); }
+  .prov-row .head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .prov-row .head b { font-size: 13px; }
+  .prov-row .head .kref { color: var(--muted); font-size: 11px; font-family: Consolas, monospace; }
+  .pill { font-size: 10px; padding: 1px 8px; border-radius: 8px; }
+  .pill.on { background: rgba(52,211,153,.15); color: var(--ok); }
+  .pill.off { background: rgba(248,113,113,.15); color: var(--err); }
+  .prov-row input { width: 100%; background: var(--bg2); border: 1px solid var(--line); color: var(--text); border-radius: 7px; padding: 7px 9px; font-size: 12px; margin-top: 6px; font-family: Consolas, monospace; }
+  .prov-row .row2 { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .modal .close-row { display: flex; justify-content: flex-end; margin-top: 6px; }
+  .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 10px 18px; font-size: 13px; z-index: 99; display: none; max-width: 80vw; }
+  .toast.err { border-color: var(--err); color: var(--err); }
+</style>
+</head>
+<body>
+<header>
+  <svg class="logo" viewBox="0 0 48 48" fill="none"><rect x="4" y="4" width="40" height="40" rx="10" fill="#1d2333"/><path d="M15 26c6-2 8-6 9-12 1 6 3 10 9 12-6 2-8 6-9 12-1-6-3-10-9-12z" fill="#7c8cff"/><circle cx="25" cy="10" r="2.6" fill="#4ade80"/><circle cx="15" cy="16" r="1.8" fill="#f59e0b"/><circle cx="35" cy="16" r="1.8" fill="#f472b6"/></svg>
+  <div><h1>创作展示台</h1><div class="sub">生图 · 生视频 · 音乐 · 配音 —— 多供应商统一工作台</div></div>
+  <div class="spacer"></div>
+  <button class="btn" id="btnSettings">⚙ 设置</button>
+</header>
+
+<main>
+  <section class="panel" id="createPanel">
+    <h2>开始创作</h2>
+    <div class="tabs" id="tabs"></div>
+    <div class="field"><label>供应商</label><select id="provider"></select></div>
+    <div class="field"><label>模型</label><select id="model"></select></div>
+    <div class="field" id="promptField"><label id="promptLabel">提示词</label><textarea id="prompt" placeholder="描述你想创作的内容……"></textarea></div>
+    <div class="field" id="negField"><label>负面提示词（可选）</label><input type="text" id="negPrompt" placeholder="不希望出现的元素"></div>
+    <div class="field" id="refField"><label id="refLabel">参考素材</label>
+      <div class="refs" id="refList"></div>
+      <input type="file" id="refInput" multiple style="display:none">
+      <div class="ref-note" id="refNote"></div>
+    </div>
+    <div id="optionsArea"></div>
+    <button class="btn primary" id="btnGenerate" style="width:100%;padding:11px 0;font-size:14px;margin-top:4px;">开始生成</button>
+    <div class="status" id="status"></div>
+  </section>
+
+  <section class="panel">
+    <h2>作品库 <span style="float:right;font-weight:400" id="galleryCount"></span></h2>
+    <div class="gallery" id="gallery"></div>
+  </section>
+</main>
+
+<div class="overlay" id="settingsOverlay">
+  <div class="modal">
+    <h3>供应商设置</h3>
+    <div class="hint">API Key 保存在本机凭据存储中，不会回传到浏览器。填写后即可在对应供应商下生成。</div>
+    <div id="provSettings"></div>
+    <div class="close-row"><button class="btn" id="btnCloseSettings">关闭</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+  var CAP_LABELS = { image: '生图', video: '生视频', music: '音乐', tts: '配音' };
+  var CAP_ICONS = { image: '🖼', video: '🎬', music: '🎵', tts: '🎙' };
+  var PROMPT_LABELS = { image: '提示词', video: '提示词', music: '音乐描述', tts: '朗读文本' };
+  var PROMPT_PLACEHOLDERS = { image: '描述你想生成的画面……', video: '描述画面内容、镜头运动、氛围……', music: '描述曲风、情绪、场景、乐器……', tts: '输入要朗读的文本……' };
+  var REF_ACCEPT = { image: 'image/*', video: 'image/*', music: 'audio/*', tts: 'audio/*' };
+  var REF_LABELS = { image: '参考图', video: '首帧参考图', music: '参考音频', tts: '参考音频（音色克隆，视供应商支持）' };
+
+  var catalog = { providers: [] };
+  var capability = 'image';
+  var refs = [];            // {kind,name,mime,dataUri,url}
+  var options = {};         // 当前能力+供应商的选项值
+  var polling = {};
+
+  function $(id) { return document.getElementById(id); }
+
+  function toast(msg, isErr) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isErr ? ' err' : '');
+    t.style.display = 'block';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () { t.style.display = 'none'; }, 4200);
+  }
+
+  function api(path, init) {
+    init = init || {};
+    init.credentials = 'same-origin';
+    if (init.body !== undefined && init.headers === undefined) init.headers = { 'Content-Type': 'application/json' };
+    return fetch(path, init).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+        return data;
+      });
+    });
+  }
+
+  // ---------- 目录渲染 ----------
+  function renderTabs() {
+    var caps = [];
+    catalog.providers.forEach(function (p) {
+      Object.keys(p.capabilities).forEach(function (c) { if (caps.indexOf(c) < 0) caps.push(c); });
+    });
+    ['image', 'video', 'music', 'tts'].forEach(function (c) { if (caps.indexOf(c) < 0) caps.push(c); });
+    var tabs = $('tabs');
+    tabs.innerHTML = '';
+    caps.forEach(function (c) {
+      var b = document.createElement('button');
+      b.textContent = CAP_ICONS[c] + ' ' + CAP_LABELS[c];
+      b.className = c === capability ? 'active' : '';
+      b.onclick = function () { capability = c; refs = []; renderAll(); };
+      tabs.appendChild(b);
+    });
+  }
+
+  function providersFor(cap) {
+    return catalog.providers.filter(function (p) { return p.enabled && p.capabilities[cap]; });
+  }
+
+  function currentProvider() {
+    var sel = $('provider');
+    return catalog.providers.find(function (p) { return p.id === sel.value; });
+  }
+
+  function currentSpec() {
+    var p = currentProvider();
+    return p ? (p.capabilities[capability] || null) : null;
+  }
+
+  function renderProviders() {
+    var sel = $('provider');
+    var list = providersFor(capability);
+    sel.innerHTML = '';
+    if (list.length === 0) {
+      var o = document.createElement('option');
+      o.textContent = '（没有支持' + CAP_LABELS[capability] + '的供应商）';
+      sel.appendChild(o);
+    }
+    list.forEach(function (p) {
+      var o = document.createElement('option');
+      o.value = p.id;
+      o.textContent = p.name + (p.keyConfigured ? '' : '（未配 Key）');
+      sel.appendChild(o);
+    });
+    if (list.length > 0) sel.value = list[0].id;
+    sel.onchange = function () { refs = []; options = {}; renderModelAndOptions(); renderRefArea(); };
+  }
+
+  function renderModelAndOptions() {
+    var spec = currentSpec();
+    var mSel = $('model');
+    mSel.innerHTML = '';
+    if (spec) {
+      spec.models.forEach(function (m) {
+        var o = document.createElement('option');
+        o.value = m.id; o.textContent = m.name;
+        mSel.appendChild(o);
+      });
+    }
+    // 选项
+    var area = $('optionsArea');
+    area.innerHTML = '';
+    options = {};
+    if (!spec) return;
+    (spec.options || []).forEach(function (opt) {
+      var val = opt.default !== undefined ? opt.default : '';
+      options[opt.id] = val;
+      var field = document.createElement('div');
+      field.className = 'field';
+      var label = document.createElement('label');
+      label.textContent = opt.label;
+      field.appendChild(label);
+      if (opt.type === 'select') {
+        var s = document.createElement('select');
+        (opt.choices || []).forEach(function (c) {
+          var o = document.createElement('option');
+          o.value = c; o.textContent = c;
+          if (c === val) o.selected = true;
+          s.appendChild(o);
+        });
+        s.onchange = function () { options[opt.id] = s.value; };
+        field.appendChild(s);
+      } else {
+        var i = document.createElement('input');
+        i.type = 'text';
+        i.value = val;
+        if (opt.placeholder) i.placeholder = opt.placeholder;
+        i.oninput = function () { options[opt.id] = i.value; };
+        field.appendChild(i);
+      }
+      area.appendChild(field);
+    });
+  }
+
+  function renderRefArea() {
+    var spec = currentSpec();
+    var field = $('refField');
+    var limits = spec ? (spec.refs || {}) : {};
+    var max = limits[capability === 'video' ? 'image' : capability] || 0;
+    var list = $('refList');
+    list.innerHTML = '';
+    refs.forEach(function (r, idx) {
+      var chip = document.createElement('div');
+      chip.className = 'ref-chip';
+      if (r.kind === 'image') {
+        var img = document.createElement('img');
+        img.src = r.dataUri; chip.appendChild(img);
+      } else if (r.kind === 'video') {
+        var v = document.createElement('video');
+        v.src = r.dataUri; v.muted = true; chip.appendChild(v);
+      } else {
+        var ic = document.createElement('div');
+        ic.style.cssText = 'font-size:26px'; ic.textContent = '🎧';
+        chip.appendChild(ic);
+      }
+      var name = document.createElement('div');
+      name.className = 'name'; name.textContent = r.name;
+      chip.appendChild(name);
+      var rm = document.createElement('button');
+      rm.className = 'rm'; rm.textContent = '×';
+      rm.onclick = function () { refs.splice(idx, 1); renderRefArea(); };
+      chip.appendChild(rm);
+      list.appendChild(chip);
+    });
+    if (refs.length < max) {
+      var add = document.createElement('button');
+      add.className = 'ref-add'; add.textContent = '+';
+      add.title = '添加' + REF_LABELS[capability];
+      add.onclick = function () { $('refInput').click(); };
+      list.appendChild(add);
+    }
+    var note = $('refNote');
+    note.textContent = spec ? (spec.refNote || '') : '';
+    if (max > 0) note.textContent = REF_LABELS[capability] + '：最多 ' + max + ' 个。' + note.textContent;
+    $('refInput').accept = REF_ACCEPT[capability] || '';
+    field.style.display = (max > 0 || refs.length > 0) ? 'block' : 'none';
+  }
+
+  function renderAll() {
+    renderTabs();
+    renderProviders();
+    renderModelAndOptions();
+    renderRefArea();
+    var spec = currentSpec();
+    $('promptLabel').textContent = PROMPT_LABELS[capability] || '提示词';
+    $('prompt').placeholder = PROMPT_PLACEHOLDERS[capability] || '';
+    $('negField').style.display = capability === 'image' ? 'block' : 'none';
+  }
+
+  // ---------- 参考素材 ----------
+  $('refInput').addEventListener('change', function (ev) {
+    var files = Array.prototype.slice.call(ev.target.files || []);
+    var spec = currentSpec();
+    var limits = spec ? (spec.refs || {}) : {};
+    var kind = capability === 'video' ? 'image' : capability;
+    var max = limits[kind] || 0;
+    files.forEach(function (f) {
+      if (refs.length >= max) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        refs.push({ kind: kind, name: f.name, mime: f.type, dataUri: reader.result });
+        renderRefArea();
+      };
+      reader.readAsDataURL(f);
+    });
+    ev.target.value = '';
+  });
+
+  // ---------- 生成 ----------
+  function setStatus(cls, html) {
+    var s = $('status');
+    s.className = 'status ' + cls;
+    s.innerHTML = html;
+  }
+
+  $('btnGenerate').addEventListener('click', function () {
+    var provider = currentProvider();
+    var spec = currentSpec();
+    var prompt = $('prompt').value.trim();
+    if (!provider || !spec) { toast('没有可用的供应商', true); return; }
+    if (prompt.length === 0) { toast('请先输入' + (PROMPT_LABELS[capability] || '提示词'), true); return; }
+    var capSpec = provider.capabilities[capability];
+    var needed = (capSpec && capSpec.keyRefs) ? capSpec.keyRefs : [provider.keyRef];
+    var missing = needed.filter(function (ref) {
+      var k = (provider.keys || []).find(function (x) { return x.ref === ref; });
+      return !k || !k.configured;
+    });
+    if (missing.length > 0) { toast(provider.name + ' 还缺凭据：' + missing.join(', ') + '，请先打开“设置”填写', true); return; }
+    var model = $('model').value;
+    var body = {
+      provider: provider.id,
+      capability: capability,
+      model: model,
+      prompt: prompt,
+      references: refs.map(function (r) { return { kind: r.kind, name: r.name, dataUri: r.dataUri }; }),
+      options: options,
+    };
+    if (capability === 'image') body.negativePrompt = $('negPrompt').value.trim();
+    var btn = $('btnGenerate');
+    btn.disabled = true;
+    setStatus('info', '<span class="spinner"></span>任务已提交，正在生成……');
+    api('/studio/api/generate', { method: 'POST', body: JSON.stringify(body) })
+      .then(function (res) {
+        var warnings = res.warnings || [];
+        var html = '<span class="spinner"></span>生成中（任务 ' + res.taskId + '）…';
+        if (warnings.length) html += '<br><span style="color:var(--warn)">' + warnings.join('<br>') + '</span>';
+        setStatus('info', html);
+        pollJob(res.taskId, Date.now());
+      })
+      .catch(function (e) {
+        btn.disabled = false;
+        setStatus('err', '提交失败：' + e.message);
+      });
+  });
+
+  function pollJob(id, started) {
+    if (polling[id]) return;
+    polling[id] = true;
+    var timer = setInterval(function () {
+      api('/studio/api/job/' + id)
+        .then(function (job) {
+          if (job.status === 'succeeded') {
+            clearInterval(timer); delete polling[id];
+            $('btnGenerate').disabled = false;
+            var secs = Math.round((Date.now() - started) / 1000);
+            setStatus('ok', '✅ 生成完成（' + secs + 's），已加入作品库：' + job.artifact.name);
+            loadGallery();
+          } else if (job.status === 'failed') {
+            clearInterval(timer); delete polling[id];
+            $('btnGenerate').disabled = false;
+            setStatus('err', '❌ 生成失败：' + (job.error || '未知错误'));
+          } else {
+            var secs = Math.round((Date.now() - started) / 1000);
+            setStatus('info', '<span class="spinner"></span>生成中… 已用 ' + secs + 's（视频/音乐可能需要 1~5 分钟）');
+          }
+        })
+        .catch(function (e) {
+          clearInterval(timer); delete polling[id];
+          $('btnGenerate').disabled = false;
+          setStatus('err', '查询任务失败：' + e.message);
+        });
+    }, 1500);
+  }
+
+  // ---------- 作品库 ----------
+  function assetUrl(path) { return '/studio/asset?path=' + encodeURIComponent(path); }
+
+  function fmtBytes(n) {
+    if (n > 1048576) return (n / 1048576).toFixed(1) + 'MB';
+    if (n > 1024) return (n / 1024).toFixed(0) + 'KB';
+    return n + 'B';
+  }
+
+  function renderGalleryLoading() {
+    var g = $('gallery');
+    g.innerHTML = '';
+    var d = document.createElement('div');
+    d.className = 'empty';
+    d.textContent = '作品库加载中…';
+    g.appendChild(d);
+  }
+
+  function renderGallery(entries) {
+    var g = $('gallery');
+    g.innerHTML = '';
+    $('galleryCount').textContent = entries.length ? entries.length + ' 件作品' : '';
+    if (entries.length === 0) {
+      var d = document.createElement('div');
+      d.className = 'empty'; d.textContent = '还没有作品。左边开始你的第一次创作吧。';
+      g.appendChild(d);
+      return;
+    }
+    entries.forEach(function (e) {
+      var card = document.createElement('div');
+      card.className = 'card';
+      var media = document.createElement('div');
+      media.className = 'media';
+      var badge = document.createElement('span');
+      badge.className = 'kind-badge';
+      badge.textContent = CAP_ICONS[e.kind] + ' ' + CAP_LABELS[e.kind];
+      media.appendChild(badge);
+      var src = assetUrl(e.path);
+      if (e.kind === 'image') {
+        var img = document.createElement('img');
+        img.src = src; img.loading = 'lazy'; img.alt = e.prompt;
+        img.onclick = function () { window.open(src, '_blank'); };
+        media.appendChild(img);
+      } else if (e.kind === 'video') {
+        var v = document.createElement('video');
+        v.src = src; v.controls = true; v.preload = 'metadata';
+        media.appendChild(v);
+      } else {
+        var a = document.createElement('audio');
+        a.src = src; a.controls = true;
+        media.appendChild(a);
+      }
+      card.appendChild(media);
+      var body = document.createElement('div');
+      body.className = 'body';
+      var pr = document.createElement('div');
+      pr.className = 'prompt'; pr.textContent = e.prompt; pr.title = e.prompt;
+      body.appendChild(pr);
+      var meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.innerHTML = '<span class="tag">' + (e.providerName || e.provider) + '</span><span>' + (e.model || '') + '</span><span>' + fmtBytes(e.bytes || 0) + '</span>';
+      body.appendChild(meta);
+      var acts = document.createElement('div');
+      acts.className = 'actions';
+      var open = document.createElement('button');
+      open.className = 'btn small'; open.textContent = '打开';
+      open.onclick = function () { window.open(src, '_blank'); };
+      acts.appendChild(open);
+      var dl = document.createElement('button');
+      dl.className = 'btn small'; dl.textContent = '下载';
+      dl.onclick = function () {
+        var link = document.createElement('a');
+        link.href = src; link.download = e.name; link.click();
+      };
+      acts.appendChild(dl);
+      var del = document.createElement('button');
+      del.className = 'btn small danger'; del.textContent = '删除';
+      del.style.marginLeft = 'auto';
+      del.onclick = function () {
+        if (!confirm('删除这件作品？')) return;
+        api('/studio/api/gallery?name=' + encodeURIComponent(e.name), { method: 'DELETE' })
+          .then(loadGallery)
+          .then(function () { toast('已删除'); })
+          .catch(function (er) { toast('删除失败：' + er.message, true); });
+      };
+      acts.appendChild(del);
+      body.appendChild(acts);
+      card.appendChild(body);
+      g.appendChild(card);
+    });
+  }
+
+  function loadGallery() {
+    api('/studio/api/gallery').then(function (res) { renderGallery(res.entries || []); });
+  }
+
+  // ---------- 设置 ----------
+  function renderSettings() {
+    var area = $('provSettings');
+    area.innerHTML = '';
+    catalog.providers.forEach(function (p) {
+      var row = document.createElement('div');
+      row.className = 'prov-row';
+      var head = document.createElement('div');
+      head.className = 'head';
+      var mainKey = (p.keys || [])[0] || { ref: p.keyRef, configured: false };
+      head.innerHTML = '<b>' + p.name + '</b><span class="kref">' + mainKey.ref + '</span>' +
+        '<span class="pill ' + (mainKey.configured ? 'on' : 'off') + '">' + (mainKey.configured ? '已配置' : '未配置') + '</span>';
+      row.appendChild(head);
+      (p.keys || []).forEach(function (k, ki) {
+        if (ki > 0 || (p.keys || []).length > 1) {
+          var kl = document.createElement('div');
+          kl.style.cssText = 'font-size:11px;color:var(--muted);margin:8px 0 2px';
+          kl.textContent = k.label + '（' + k.ref + '）' + (k.configured ? ' ✅' : '');
+          row.appendChild(kl);
+        }
+        var input = document.createElement('input');
+        input.type = 'password';
+        input.placeholder = k.configured ? '已配置（输入新值可覆盖，留空保持不变）' : '粘贴 ' + k.label;
+        input.dataset.ref = k.ref;
+        row.appendChild(input);
+      });
+      if (p.baseUrlEditable) {
+        var urlInput = document.createElement('input');
+        urlInput.type = 'text';
+        urlInput.placeholder = '接口地址（可选，默认 ' + p.baseUrl + '）';
+        urlInput.dataset.kind = 'baseUrl';
+        row.appendChild(urlInput);
+      }
+      var row2 = document.createElement('div');
+      row2.className = 'row2';
+      var save = document.createElement('button');
+      save.className = 'btn small primary';
+      save.textContent = '保存';
+      save.onclick = function () {
+        var payload = { provider: p.id, keys: {} };
+        row.querySelectorAll('input[data-ref]').forEach(function (el) {
+          var v = el.value.trim();
+          if (v.length > 0) payload.keys[el.dataset.ref] = v;
+        });
+        var uv = row.querySelector('input[data-kind=baseUrl]');
+        if (uv && uv.value.trim().length > 0) payload.baseUrl = uv.value.trim();
+        api('/studio/api/config', { method: 'POST', body: JSON.stringify(payload) })
+          .then(function () { toast(p.name + ' 设置已保存'); return loadCatalog(); })
+          .then(renderSettings)
+          .catch(function (e) { toast('保存失败：' + e.message, true); });
+      };
+      row2.appendChild(save);
+      (p.keys || []).forEach(function (k) {
+        if (!k.configured) return;
+        var clear = document.createElement('button');
+        clear.className = 'btn small danger';
+        clear.textContent = '清除 ' + k.ref;
+        clear.onclick = function () {
+          var payload = { provider: p.id, keys: {} };
+          payload.keys[k.ref] = '';
+          api('/studio/api/config', { method: 'POST', body: JSON.stringify(payload) })
+            .then(function () { toast(k.ref + ' 已清除'); return loadCatalog(); })
+            .then(renderSettings)
+            .catch(function (e) { toast('清除失败：' + e.message, true); });
+        };
+        row2.appendChild(clear);
+      });
+      row.appendChild(row2);
+      area.appendChild(row);
+    });
+  }
+
+  $('btnSettings').addEventListener('click', function () { renderSettings(); $('settingsOverlay').classList.add('show'); });
+  $('btnCloseSettings').addEventListener('click', function () { $('settingsOverlay').classList.remove('show'); loadCatalog().then(renderAll); });
+  $('settingsOverlay').addEventListener('click', function (ev) { if (ev.target === this) this.classList.remove('show'); });
+
+  // ---------- 启动 ----------
+  function loadCatalog() {
+    return api('/studio/api/config').then(function (res) {
+      catalog = res;
+      if (!catalog.providers.some(function (p) { return p.capabilities[capability]; })) {
+        var first = ['image', 'video', 'music', 'tts'].find(function (c) {
+          return catalog.providers.some(function (p) { return p.enabled !== false && p.capabilities[c]; });
+        });
+        if (first) capability = first;
+      }
+      renderAll();
+      return res;
+    });
+  }
+
+  renderGalleryLoading();
+  loadCatalog()
+    .then(function () { setTimeout(loadGallery, 60); })
+    .catch(function (e) { setStatus('err', '加载失败：' + e.message); });
+})();
+</script>
+</body>
+</html>

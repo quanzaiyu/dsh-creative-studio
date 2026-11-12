@@ -1,0 +1,4 @@
+# 创作展示台：host 半区插件行。页面与 API 由本包 index.js 通过 webServer 注册。
+- insert:
+    - id: creative-studio
+      name: '@local/creative-studio'
